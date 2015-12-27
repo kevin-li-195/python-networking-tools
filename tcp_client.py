@@ -1,5 +1,6 @@
 import socket
 
+# Note: Using Baidu and not Google because I was in China while developing this.
 target_host = "www.baidu.com"
 target_port = 80
 target = (target_host, target_port)
