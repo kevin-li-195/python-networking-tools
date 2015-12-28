@@ -15,29 +15,29 @@ port = 0
 
 # Prints usage of net.py to stdout. Invoked on bad options too.
 def usage():
-    print "\nNetcat implemented with Python.\n"
-    print "Usage: net.py -t target_host -p port"
-    print "-l --listen -> listen on [host]:[port]" + \
-        " for incoming connections."
-    print "-e --execute=file_to_run -> execute the given file" + \
-        " upon successful connection."
-    print "-c --command -> initialize a command shell."
-    print "-u --upload=dest -> upon receiving connection" + \
-        " upload a file to dest (destination)."
-    print "\n"
-    print "Examples\n========"
-    print "net.py -t 192.168.0.1 -p 8080 -l -c"
-    print "This will listen on 192.168.0.1:8080 for incoming connections" + \
-            " and drop a command shell back when it receives one.\n"
-    print "net.py -t 192.168.0.1 -p 8080 -l -u=C:\\target.exe"
-    print "This will listen on 192.168.0.1:8080 for incoming connections" + \
-            " and upload a file to C:\\target.exe\n"
-    print "net.py -t 192.168.0.1 -p 8080 -l -e=\"cat /etc/passwd\""
-    print "This will listen on 192.168.0.1:8080 for incoming connections" + \
-            " and run \"cat /etc/passwd\" when it receives ones.\n"
-    print "echo 'ABCDEFGHI' | ./net.py -t 111.111.111.111 -p 1234"
-    print "This will send 'ABCDEFGHI' to the listener (assuming there" + \
-            " is one) at 111.111.111.111:1234"
+    print("\nNetcat implemented with Python.\n")
+    print("Usage: net.py -t target_host -p port")
+    print("-l --listen -> listen on [host]:[port]" + \
+        " for incoming connections.")
+    print("-e --execute=file_to_run -> execute the given file" + \
+        " upon successful connection.")
+    print("-c --command -> initialize a command shell.")
+    print("-u --upload=dest -> upon receiving connection" + \
+        " upload a file to dest (destination).")
+    print("\n")
+    print("Examples\n========")
+    print("net.py -t 192.168.0.1 -p 8080 -l -c")
+    print("This will listen on 192.168.0.1:8080 for incoming connections" + \
+            " and drop a command shell back when it receives one.\n")
+    print("net.py -t 192.168.0.1 -p 8080 -l -u=C:\\target.exe")
+    print("This will listen on 192.168.0.1:8080 for incoming connections" + \
+            " and upload a file to C:\\target.exe\n")
+    print("net.py -t 192.168.0.1 -p 8080 -l -e=\"cat /etc/passwd\"")
+    print("This will listen on 192.168.0.1:8080 for incoming connections" + \
+            " and run \"cat /etc/passwd\" when it receives ones.\n")
+    print("echo 'ABCDEFGHI' | ./net.py -t 111.111.111.111 -p 1234")
+    print("This will send 'ABCDEFGHI' to the listener (assuming there" + \
+            " is one) at 111.111.111.111:1234")
     sys.exit(0)
 
 # Helper function to continually send client data from STDIN.
@@ -70,7 +70,7 @@ def client_sender(b):
     except EOFError:
         pass
     except Exception as e:
-        print "[*] Exception: %s. Exiting." % e
+        print("[*] Exception: %s. Exiting." % e)
         client.close()
 
 # Loop server to handle incoming connections.
@@ -114,7 +114,7 @@ def client_handler(c):
             try:
                 data = c.recv(1024)
             except socket.timeout as e:
-                print str(e)
+                print(str(e))
                 pass
             if len(data) < 1024:
                 file_buff += data
@@ -175,7 +175,7 @@ def main():
                         ])
 
     except getopt.GetoptError as err:
-        print str(err)
+        print(str(err))
         usage()
 
     for o,a in opts:
@@ -194,17 +194,17 @@ def main():
         elif o in ("-u", "--upload"):
             upload_dest = a
         else:
-            print "Reached else in opts selection"
+            print("Reached else in opts selection")
             assert False,"Unhandled option"
 
     if not listen and len(target) and port > 0:
-        print "======"
-        print "If you are trying to get a shell, press CTRL-D."
-        print "======"
-        print "If you're trying to upload a file, the EOF char"
-        print "will end the upload and provide you with a prompt"
-        print "indicating success or failure."
-        print "======"
+        print("======")
+        print("If you are trying to get a shell, press CTRL-D.")
+        print("======")
+        print("If you're trying to upload a file, the EOF char")
+        print("will end the upload and provide you with a prompt")
+        print("indicating success or failure.")
+        print("======")
         b = sys.stdin.read()
         client_sender(b)
 
