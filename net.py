@@ -61,9 +61,14 @@ def client_sender(b):
 
             sys.stdout.write(response)
 
-            b = raw_input("")
-            b += "\n"
+            try:
+                b = raw_input("")
+            except EOFError:
+                pass
+            b += '\n'
             client.send(b)
+    except EOFError:
+        pass
     except Exception as e:
         print "[*] Exception: %s. Exiting." % e
         client.close()
@@ -99,15 +104,20 @@ def client_handler(c):
     global execute
     global command
 
+    c.settimeout(2)
     # If upload destination exists,
     # upload data that is put in from sender's STDIN
     # and save in receiver's upload_dest.
     if len(upload_dest):
         file_buff = ""
-
         while True:
-            data = c.recv(1024)
-            if not data:
+            try:
+                data = c.recv(1024)
+            except socket.timeout as e:
+                print str(e)
+                pass
+            if len(data) < 1024:
+                file_buff += data
                 break
             else:
                 file_buff += data
@@ -116,9 +126,9 @@ def client_handler(c):
             fp = open(upload_dest, "wb")
             fp.write(file_buff)
             fp.close()
-            c.send("Successfully saved file to %s\r\n" % upload_dest)
+            c.send("Successfully saved file to %s.\r\n" % upload_dest)
         except:
-            c.send("Failed to save file to %s" % upload_dest)
+            c.send("Failed to save file to %s.\r\n" % upload_dest)
 
     # If command is sent, execute command and send back output.
     if len(execute):
@@ -128,7 +138,7 @@ def client_handler(c):
     # If command is set to True, drop back a command shell.
     if command:
         while True:
-            c.send("<1337HaxShell> $ ")
+            c.send("<net.py> $ ")
             cmd = ""
             while True:
                 cmd += c.recv(1024)
@@ -188,10 +198,13 @@ def main():
             assert False,"Unhandled option"
 
     if not listen and len(target) and port > 0:
-        print "If you are trying to get a shell, press CTRL-D." + \
-                " If you're trying to upload a file, the EOF char" + \
-                " will end the upload and provide you with a prompt" + \
-                " indicating success or failure."
+        print "======"
+        print "If you are trying to get a shell, press CTRL-D."
+        print "======"
+        print "If you're trying to upload a file, the EOF char"
+        print "will end the upload and provide you with a prompt"
+        print "indicating success or failure."
+        print "======"
         b = sys.stdin.read()
         client_sender(b)
 
