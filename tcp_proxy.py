@@ -56,6 +56,7 @@ def server_loop(local_host, local_port, remote_host, remote_port, receive_first)
 def proxy_handler(client_socket, remote_host, remote_port, receive_first):
     remote_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     remote_socket.connect((remote_host, remote_port))
+    print("[*] Connected to remote host at: %s" % remote_host)
 
     if receive_first:
         remote_buffer = receive_from(remote_socket)
