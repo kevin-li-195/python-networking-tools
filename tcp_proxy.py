@@ -37,9 +37,10 @@ def server_loop(local_host, local_port, remote_host, remote_port, receive_first)
 
     try:
         server.bind((local_host, local_port))
-    except:
+    except Exception as e:
         print("[!!] Failed to listen on [%s]:[%d]" % (local_host, int(local_port)))
         print("[!!] Check for other listening sockets or correct permissions.")
+        print("Error: %s" % str(e))
         sys.exit(0)
 
     print("[*] Listening on port [%s]:[%d]" % (local_host, local_port))
@@ -47,7 +48,7 @@ def server_loop(local_host, local_port, remote_host, remote_port, receive_first)
     server.listen(5)
 
     while True:
-        client, addr == server.accept()
+        client, addr = server.accept()
         print("[==>] Received connection from [%s]:[%d]" % (addr[0], addr[1]))
         t = threading.Thread(target=proxy_handler, args=(client, remote_host, remote_port, receive_first))
         t.start()
@@ -92,10 +93,10 @@ def proxy_handler(client_socket, remote_host, remote_port, receive_first):
 
 def hexdump(bs, length=16):
     result = []
-    digits = 4 if ininstance(bs, unicode) else 2
-    for i in xrange(0,len(src), length):
-        a = src[i:i+length]
-        hexa = b" ".join(["%0*X" % (digits, ord(x)) for x in s])
+    digits = 4 if isinstance(bs, unicode) else 2
+    for i in xrange(0,len(bs), length):
+        a = bs[i:i+length]
+        hexa = b" ".join(["%0*X" % (digits, ord(x)) for x in a])
         text = b"".join([x if 0x20 <= ord(x) < 0x7F else b"." for x in a])
         result.append(b"%04X %-*s %s" % (i, length*(digits + 1), hexa, text))
 
@@ -126,9 +127,9 @@ def main():
     print("[*] Running TCP Proxy...")
 
     local_host = sys.argv[1]
-    local_port = sys.argv[2]
+    local_port = int(sys.argv[2])
     remote_host = sys.argv[3]
-    remote_port = sys.argv[4]
+    remote_port = int(sys.argv[4])
     receive_first = sys.argv[5]
 
     if "True" in receive_first or "true" in receive_first or "1" in receive_first:
