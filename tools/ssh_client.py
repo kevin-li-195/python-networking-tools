@@ -5,7 +5,7 @@ import subprocess
 # Unsafe - Should change to using private key auth.
 def ssh_command(ip, user, passwd, command):
     c = p.SSHClient()
-    #c.load_host_keys('/home/hcokbo/.ssh/known_hosts')
+    #c.load_host_keys('/home/chokboy/.ssh/known_hosts')
     c.set_missing_host_key_policy(p.AutoAddPolicy())
     c.connect(ip, username=user, password=passwd)
     session = c.get_transport().open_session()
