@@ -2,7 +2,7 @@
 import socket
 import os
 
-host = "192.168.0.1"
+host = "127.0.0.1"
 op_sys = os.name
 
 # Windows allows us to leave the protocol as default to sniff anything,
