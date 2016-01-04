@@ -15,6 +15,7 @@ subnet = "192.168.0.0/24"
 message = "Superduperping"
 
 def udp_sender(subnet, message):
+
     time.sleep(5)
     sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -24,7 +25,13 @@ def udp_sender(subnet, message):
         except:
             pass
 
+    print("Subnet scanning complete.")
+    print("Subnet scanning complete.")
+
 if __name__ == "__main__":
+
+    host_num = 0
+    host_list = []
 
     # If we're in Windows, set socket protocol to use any protocol.
     # Otherwise we specify ICMP in Linux because Linux is very demanding.
@@ -46,12 +53,11 @@ if __name__ == "__main__":
     if os.name == "nt":
         sniffer.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON)
 
-    t = threading.Thread(target=udp_sender, args=(subnet, message))
-    t.start()
+    ping_thread = threading.Thread(target=udp_sender, args=(subnet, message))
+    ping_thread.start()
 
     try:
         while True:
-            print("Sniffing for packet...")
             raw_buffer = sniffer.recvfrom(1024)[0]
             ip_header = IP(raw_buffer[0:20]) # Assuming the header will be 20 bytes long.
 
@@ -70,11 +76,20 @@ if __name__ == "__main__":
 
                 # Only print ICMP related info if it's actually ICMP.
                 print("ICMP -> Type: %d, Code: %d" % (icmp_header.packet_type, icmp_header.code))
-                
-                if icmp_header.code == 3 and icmp_header.type == 3:
+
+                # If destination was unreachable because the port was unreachable, then the host must be up. 
+                if icmp_header.code == 3 and icmp_header.packet_type == 3:
+
+                    # If the IP address that we pinged was in the original subnet we specified, then we're
+                    # more sure that we pinged this address.
                     if IPAddress(ip_header.src_address) in IPNetwork(subnet):
+
+                        # If the original data is in the packet, then it must be from us originally.
+                        # Thus, we're now sure that the host that we originally pinged must be up.
                         if raw_buffer[len(raw_buffer)-len(message):] == message:
                             print("Host up: %s" % ip_header.src_address)
+                            host_num += 1
+                            host_list.append(ip_header.src_address)
 
     except KeyboardInterrupt:
         if os.name == "nt":
