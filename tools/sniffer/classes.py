@@ -105,11 +105,25 @@ class IP(Structure):
             self.protocol = str(self.protocol_num)
 
 class ICMP(Structure):
-    _fields_ = [ ("type", c_ubyte)
-               , ("code", c_ubyte)
+    ''' This class encapsulates an ICMP header, but is mainly useful for Type 3 ICMP packets. '''
+
+    _fields_ = [ ("packet_type", c_ubyte)       # This is 8 bits defining the type of ICMP packet.
+                                                # Type 0 = Echo reply
+                                                # Type 1-2 are unassigned.
+                                                # Type 3 is "Destination Unreachable"
+                                                # There many others, most of which are deprecated or reserved for testing,
+                                                # but we care about Type 3 as it tells us a host is up even if they aren't
+                                                # echoing ICMP pings.
+
+               , ("code", c_ubyte)              # After the type, the code provides additional information
+                                                # to help diagnose specifically why, for example, the destination
+                                                # was unreachable in a case where the ICMP packet type was 3.
+
                , ("checksum", c_ushort)
-               , ("unused", c_ushort)
-               , ("next_hop_mtu", c_ushort)
+               , ("unused", c_ushort)           # Padding.
+               , ("next_hop_mtu", c_ushort)     # Next Hop MTU field is only useful if Type == 4 and Code == 3.
+                                                # This means that the datagram was too large and exceeded the
+                                                # Path MTU on its way to the target. Thus, the destination could not be reached.
                ]
 
     def __new__(self, socket_buffer):
